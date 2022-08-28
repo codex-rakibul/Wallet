@@ -36,7 +36,7 @@ function additems(type, desc, value){
             </div>
         </div>
            <div class="item-amount ${type==='+'? "income-amount":'expense-amount'}">
-            <p>${type}$${value}</p>
+            <p>${type}$${sep(value)}</p>
            </div>
     </div>
     `;
@@ -44,6 +44,9 @@ function additems(type, desc, value){
     collection.insertAdjacentHTML('afterbegin',newhtml);
     
     additemsToLS(desc, time, type, value);
+    showTotalExp();
+    showTotalIncome();
+    showTotalBalance();
 
 }
 
@@ -53,15 +56,11 @@ function resetForm() {
     document.querySelector('.add__value').value='';
 
 }
+
 function getItemsFromLS(){
     let items = localStorage.getItem('items');
-
-    if(items){
-    items = JSON.parse(items);
-     }else{
-       items = [];
-    }
-    return items;
+    return items =(items)? JSON.parse(items): [];
+    
 }
 showitems();
 function showitems(){
@@ -78,7 +77,7 @@ function showitems(){
             </div>
         </div>
            <div class="item-amount ${item.type==='+'? "income-amount":'expense-amount'}">
-            <p>${item.type}$${item.value}</p>
+            <p>${item.type}$${sep(item.value)}</p>
            </div>
     </div>
     `;
@@ -90,5 +89,57 @@ function additemsToLS(desc, time, type, value){
  let items = getItemsFromLS();
  items.push({desc,time,type,value});
  localStorage.setItem('items', JSON.stringify(items));
+
 }
 
+/****************************************** */
+/*             Calculaton                   */
+/**************************************** ***/
+showTotalIncome();
+
+function showTotalIncome(){
+    let items = getItemsFromLS();
+    let totalIncome = 0;
+    for(let item of items){
+        if(item.type==='+'){
+            totalIncome += parseInt(item.value);
+        }
+    }
+    document.querySelector('.income__amount p').innerHTML = `$${sep(totalIncome)}`;
+}
+showTotalExp();
+
+function showTotalExp(){
+    let items = getItemsFromLS();
+    let totalExp = 0;
+    for(let item of items){
+        if(item.type==='-'){
+            totalExp += parseInt(item.value);
+        }
+    }
+    document.querySelector('.expense__amount').innerHTML = `$${sep(totalExp)}`;
+}
+
+showTotalBalance();
+
+function showTotalBalance(){
+    const items = getItemsFromLS();
+    let Balance = 0;
+    for(let item of items){
+        if(item.type==='+'){
+            Balance += parseInt(item.value);
+        }else if(item.type==='-'){
+            Balance -= parseInt(item.value);
+        }
+    }
+    document.querySelector('.balance__amount').innerHTML = sep(Balance);
+    
+        document.querySelector('header').className = Balance >=0? 'green':'red';
+   
+
+}
+
+function sep(amount){
+    amount = parseInt(amount);
+    return amount.toLocaleString();
+}
