@@ -42,6 +42,9 @@ function additems(type, desc, value){
     `;
     const collection = document.querySelector('.collection');
     collection.insertAdjacentHTML('afterbegin',newhtml);
+    
+    additemsToLS(desc, time, type, value);
+
 }
 
 function resetForm() {
@@ -49,5 +52,43 @@ function resetForm() {
     document.querySelector('.add__description').value='';
     document.querySelector('.add__value').value='';
 
+}
+function getItemsFromLS(){
+    let items = localStorage.getItem('items');
+
+    if(items){
+    items = JSON.parse(items);
+     }else{
+       items = [];
+    }
+    return items;
+}
+showitems();
+function showitems(){
+    let items = getItemsFromLS();
+    for(let item of items){
+        const newhtml =`
+    <div class="item">
+        <div class="item-description-time">
+            <div class="item-description">
+              <p>${item.desc}</p>
+            </div>
+            <div class="item-time">
+              <p>${item.time}</p>
+            </div>
+        </div>
+           <div class="item-amount ${item.type==='+'? "income-amount":'expense-amount'}">
+            <p>${item.type}$${item.value}</p>
+           </div>
+    </div>
+    `;
+    const collection = document.querySelector('.collection');
+    collection.insertAdjacentHTML('afterbegin',newhtml);
+    }
+}
+function additemsToLS(desc, time, type, value){
+ let items = getItemsFromLS();
+ items.push({desc,time,type,value});
+ localStorage.setItem('items', JSON.stringify(items));
 }
 
